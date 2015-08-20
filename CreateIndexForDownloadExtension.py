@@ -14,11 +14,7 @@ INDEX_FILE = 'index.json'
 INDENT = '    '
 START_WORDS = "{\n\"productname_extension_index\":[\n"
 
-class MetaObj:
-    '''
-    key_list = ["Name","Dialog-Specs","Command-Specs","Code-Files","Misc-Files","Summary","Description","Author","Version","Product-Version","Date",
-                "Categories","Plugins","Translation-Catalogues"]'''
-    
+class MetaObj:    
     KEY = 0
     VAL = 1
     '''
@@ -186,7 +182,7 @@ def downloadFile(spe_path,index_path, product_name):
         json_item += INDENT + "},\n"  
         index_for_web_json += json_item
         os.chdir(root_spe_dir)
-    print("after cycle")
+    print("The script completed successfully!")
     index_for_web_json = index_for_web_json[0:-2]
     index_for_web_json += '\n]\n}'
     index_for_web.write(index_for_web_json)  
