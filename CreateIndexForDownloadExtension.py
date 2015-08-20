@@ -181,12 +181,12 @@ def downloadFile(spe_path,index_path, product_name):
         json_item += extension_json
         json_item += INDENT + "},\n"  
         index_for_web_json += json_item
-        os.chdir(root_spe_dir)
-    print("The script completed successfully!")
+        os.chdir(root_spe_dir)  
     index_for_web_json = index_for_web_json[0:-2]
     index_for_web_json += '\n]\n}'
     index_for_web.write(index_for_web_json)  
     index_for_web.close()
+    print("The script completed successfully!")
 
 
 if __name__ == '__main__':    
