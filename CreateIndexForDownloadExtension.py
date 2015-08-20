@@ -6,12 +6,13 @@ import json
 import sys
 from optparse import OptionParser 
 import time 
-
+             
 SPE_DOWNLOAD_URL = "https://github.com/IBMPredictiveAnalytics/repos_name/raw/master/STATS_OPEN_PROJECT.spe"
 IMG_DOWNLOAD_URL = "https://raw.githubusercontent.com/IBMPredictiveAnalytics/repos_name/master/default.png"
 FILE_NAME= "MANIFEST.MF"
 INDEX_FILE = 'index.json'
 INDENT = '    '
+START_WORDS = "{\n\"productname_extension_index\":[\n"
 
 class MetaObj:
     '''
@@ -86,6 +87,12 @@ class MetaObj:
         extension_json += INDENT*2 + "}\n"  
         return extension_json        
 
+def getWholeProductName(product_name):
+    if(product_name == "stats"):
+        return "SPSS Statistics"
+    else:
+        return "SPSS Modeler"
+
 def downloadFile(spe_path,index_path, product_name):
     api_url = "https://api.github.com/orgs/ibmpredictiveanalytics/repos?per_page=1000"
     raw_spe_url = "https://github.com/IBMPredictiveAnalytics/repos_name/raw/master/repos_name.spe"
@@ -94,9 +101,11 @@ def downloadFile(spe_path,index_path, product_name):
     #key_list for repository info.json
     key_list = ['type', 'provider', 'software', 'language', 'category', 'promotion']
     
-    
     api_json_data = json.loads(urllib.request.urlopen(api_url).read().decode('utf-8'))
-    index_for_web_json = "{\n\"stats_extension_index\":[\n"
+    
+    index_for_web_json = re.sub('productname', product_name, START_WORDS)
+    whole_product_name = getWholeProductName(product_name)
+     
     index_for_web = open(os.path.join(index_path, INDEX_FILE),'w')
     
     cur_time = time.strftime('%Y%m%d%H%M%S',time.localtime(time.time()))
@@ -131,8 +140,8 @@ def downloadFile(spe_path,index_path, product_name):
         else:
             repo_software = repo_info_json['software']
         print(repo_software)
-        if repo_software != product_name:
-            print("This is not a " + product_name + " repo.\nSwitch to next repo.\n\n\n")
+        if repo_software != whole_product_name:
+            print("This is not a " + whole_product_name + " repo.\nSwitch to next repo.\n\n\n")
             continue
         
         repo_spe_url = re.sub('repos_name', repo_name, raw_spe_url)
@@ -152,16 +161,16 @@ def downloadFile(spe_path,index_path, product_name):
         srcZip.close()        
         
         json_item = INDENT+'{\n'
-        json_item += INDENT + INDENT + "\"repository\":" +"\"" + repo_name +"\",\n" 
-        json_item += INDENT + INDENT + "\"description\":" +"\"" + repo_desc +"\",\n"
-        json_item += INDENT + INDENT + "\"pushed_at\":" +"\"" + repo_push_time +"\",\n" 
+        json_item += INDENT*2 + "\"repository\":" +"\"" + repo_name +"\",\n" 
+        json_item += INDENT*2 + "\"description\":" +"\"" + repo_desc +"\",\n"
+        json_item += INDENT*2 + "\"pushed_at\":" +"\"" + repo_push_time +"\",\n" 
         
         for key in key_list:
             if type(repo_info_json[key]) == list:
                 val = repo_info_json[key][0]
             else:
                 val = repo_info_json[key]
-            json_item += INDENT + INDENT + "\"" + key + "\":" + "\"" + val + "\",\n"
+            json_item += INDENT*2 + "\"" + key + "\":" + "\"" + val + "\",\n"
         
         json_item += INDENT*2 + "\"download_link\":" +"\"" + re.sub('repos_name', repo_name, SPE_DOWNLOAD_URL) +"\",\n"
         json_item += INDENT*2 + "\"image_link\":" +"\"" + re.sub('repos_name', repo_name, IMG_DOWNLOAD_URL) +"\",\n"
@@ -197,8 +206,8 @@ if __name__ == '__main__':
         parser.error("Please input a valid directory to save spe.")  
     if not os.path.isdir(options.outdir):
         parser.error("Please input a valid directory to create index file.")   
-    if options.productName != "SPSS Modeler" and options.productName != "SPSS Statistics":  
-        parser.error("Please input valid product name Modeler or Stats (casesensitive) for your index file")  
+    if options.productName != "modeler" and options.productName != "stats":  
+        parser.error("Please input valid product name modeler or stats (casesensitive) for your index file")  
     
     downloadFile(options.spedir,options.outdir, options.productName)
     
