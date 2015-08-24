@@ -7,7 +7,6 @@ import json
 from optparse import OptionParser 
 import time 
 
-#error message             
 SPE_DOWNLOAD_URL = "https://github.com/IBMPredictiveAnalytics/repos_name/raw/master/STATS_OPEN_PROJECT.spe"
 IMG_DOWNLOAD_URL = "https://raw.githubusercontent.com/IBMPredictiveAnalytics/repos_name/master/default.png"
 FILE_NAME= "MANIFEST.MF"
